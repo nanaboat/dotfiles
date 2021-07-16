@@ -1,0 +1,145 @@
+" ONE TIME SETUP
+" 1. install the vim-plug plugin manager for vim. https://github.com/junegunn/vim-plug
+" 2. in vim command line run :PlugInstall
+
+set nocompatible
+set noswapfile
+set enc=utf-8  " UTF-8 Default encoding
+set history=10000 " current max as of 2020
+set ruler
+set rulerformat=%l:%c ruler " Display current column/line
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+set backspace=indent,eol,start
+set scrolloff=6
+set laststatus=2
+noremap <space> :
+set whichwrap=h,l,~,[,]
+
+" press 'u' key for undo, 'U' key for redo
+nnoremap U <c-r>
+
+" remove the <esc> delay from insert mode
+set timeoutlen=1000 ttimeoutlen=0
+
+" these are github repos that vim-plug automatically installs
+" uncomment any you don't need, or add more!
+call plug#begin('~/.vim/plugged')
+Plug 'Vimjas/vim-python-pep8-indent'
+Plug 'kien/ctrlp.vim'
+Plug 'altercation/vim-colors-solarized'
+Plug 'tpope/vim-surround'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'leafgarland/typescript-vim'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'dense-analysis/ale'
+call plug#end()
+
+set background=dark
+colorscheme solarized
+
+set ttyfast
+set lazyredraw              " Don't update while in macro
+set autoindent              " auto indent
+set smarttab                " tab and backspace are smart
+
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+
+noremap - :nohls<cr>
+map Y y$
+
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+cnoremap <C-A> <Home>
+cnoremap <C-E> <End>
+
+set magic
+" make /, ?, s/ (and %s/) very magic
+" :nnoremap / /\v
+" :nnoremap ? ?\v
+" :cnoremap %s/ %s/\v
+" :ca ss %s/\v
+
+" Set > and < to not use operator-pending mode
+" noremap > >>
+" noremap < <<
+
+" automatically trim whitespace at the end of lines on save
+autocmd BufWritePre * :%s/\s\+$//e
+
+set textwidth=0
+set wrap
+set number
+set titlestring=%f title    " Display filename in terminal window
+set showcmd                 " Show commands at bottom right
+set showmatch               " Show matching brackets.
+
+if has("wildmenu")
+    set wildmenu
+    set wildmode=longest:list,full
+    set wildignore+=*.a,*.o
+    set wildignore+=*.bmp,*.gif,*.ico,*.jpg,*.png
+    set wildignore+=.DS_Store,.git,.hg,.svn
+    set wildignore+=*~,*.swp,*.tmp
+    set infercase
+endif
+
+" Make sure that unsaved buffers that are to be put in the background are
+" allowed to go in there (ie. the "must save first" error doesn't come up)
+set hidden
+
+" Show the current mode
+set showmode
+
+" Disable syntax highlight for files larger than 50 MB
+autocmd BufWinEnter * if line2byte(line("$") + 1) > 50000000 | syntax clear | endif
+
+augroup vimrc_autocmds
+  " non-annoyingly highlight everything past the 100 character mark
+  autocmd BufEnter,WinEnter * highlight OverLength ctermbg=236 guibg=#592929
+  autocmd BufEnter,WinEnter * let w:m1=matchadd('OverLength', '\%>100v.\+', -1)
+  autocmd BufEnter,WinEnter * highlight ExtraWhitespace ctermbg=red guibg=red
+
+  " highlight tabs
+  " (I always indent with spaces, and want tabs highlighted so that I can
+  " delete them)
+  autocmd BufEnter,WinEnter * let w:m3=matchadd('ExtraWhitespace', '\t\+', -1)
+augroup END
+
+function! GitBranch()
+  return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+endfunction
+
+function! StatuslineGit()
+  let l:branchname = GitBranch()
+  return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+endfunction
+
+" Whitespace preferences based on filetype
+autocmd FileType html setlocal ts=2 sts=2 sw=2
+autocmd FileType python setlocal ts=4 sts=4 sw=4
+autocmd FileType javascript setlocal ts=2 sts=2 sw=2
+
+set statusline=
+set statusline+=%#PmenuSel#
+set statusline+=%{StatuslineGit()}
+set statusline+=%#LineNr#
+set statusline+=\ %f
+set statusline+=%m\
+set statusline+=%=
+set statusline+=%#CursorColumn#
+set statusline+=\ %y
+set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\[%{&fileformat}\]
+set statusline+=\ %p%%
+set statusline+=\ %l:%c
+set statusline+=\
